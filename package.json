@@ -9,8 +9,8 @@
   },
   "scripts": {
     "build": "pnpm -r run build",
-    "check:changelog": "node scripts/check-changelog.mjs",
-    "sync:versions": "node scripts/sync-version.mjs",
+    "check:changelog": "node .github/scripts/check-changelog.mjs",
+    "sync:versions": "node .github/scripts/sync-version.mjs",
     "dev:bot": "pnpm --filter @gatriever/telegram-bot dev",
     "dev:api": "pnpm --filter @gatriever/api-server dev",
     "typecheck": "pnpm -r run typecheck"

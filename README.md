@@ -17,9 +17,8 @@ gatriever/
 │   ├── ga-client/          # Isolated GA4 Data API client & metrics aggregation
 │   ├── templates/          # Formatting modules (@gatriever/templates/telegram, /json)
 │   └── database/           # Storage adapters (Memory, File) & AES-256-GCM crypto
-├── scripts/
-│   ├── check-changelog.mjs # CI validator for release documentation
-│   └── sync-version.mjs    # On-demand version synchronization for CI releases
+├── .github/
+│   └── scripts/            # CI release and verification automation
 ├── CHANGELOG.md            # Single source of truth for release notes
 └── pnpm-workspace.yaml     # Workspace configuration
 ```
