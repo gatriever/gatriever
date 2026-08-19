@@ -1,25 +1,32 @@
 # 🐕 gatriever
 
-> Fetching your Google Analytics 4 reports straight to Telegram and REST API. Open-source, private, and lightning fast.
+> Fetching your Google Analytics 4 reports straight to Telegram and REST API, with automated multi-router DDNS internal traffic filtering. Open-source, private, and lightning fast.
 
 ---
 
 ## 🏛️ Monorepo Architecture
 
-The project is structured as a lightweight monorepo powered by **pnpm workspaces**:
+The project is structured as a modular monorepo powered by **pnpm workspaces**:
 
 ```text
 gatriever/
 ├── apps/
-│   ├── telegram-bot/       # Telegram bot client powered by grammY
-│   └── api-server/         # Core REST API backend server
+│   ├── telegram-bot/       # Telegram bot (grammY)
+│   ├── api-server/         # REST API server (node:http)
+│   └── ddns-sync/          # Multi-router DDNS daemon (PM2/Firebase)
 ├── packages/
-│   ├── ga-client/          # Isolated GA4 Data API client & metrics aggregation
-│   ├── templates/          # Formatting modules (@gatriever/templates/telegram, /json)
-│   └── database/           # Storage adapters (Memory, File) & AES-256-GCM crypto
+│   ├── core/
+│   │   ├── schemas/        # Schemas & types (@gatriever/schemas)
+│   │   ├── ddns/           # DDNS sync engine (@gatriever/ddns)
+│   │   ├── analytics/      # GA4 Data & Admin API (@gatriever/analytics)
+│   │   └── templates/      # Report formatters (@gatriever/templates)
+│   └── infrastructure/
+│       ├── storage/        # Storage adapters (@gatriever/storage)
+│       ├── crypto/         # AES-256-GCM crypto (@gatriever/crypto)
+│       └── http/           # Native MicroRouter (@gatriever/http)
 ├── .github/
-│   └── scripts/            # CI release and verification automation
-├── CHANGELOG.md            # Single source of truth for release notes
+│   └── scripts/            # CI release automation
+├── CHANGELOG.md            # Release notes
 └── pnpm-workspace.yaml     # Workspace configuration
 ```
 
@@ -27,9 +34,11 @@ gatriever/
 
 ## ✨ Key Features
 
-* **⚡ Ultra-fast Cold Starts:** Bundled via `tsup` with inlined workspace dependencies (`noExternal`) for instant Serverless / Cloud Functions startup.
+* **⚡ Ultra-fast Cold Starts & Zero `node_modules` in Prod:** Bundled via `tsup`/`esbuild` with inlined workspace dependencies (`noExternal`) for instant Serverless / Cloud Functions startup and minimal PM2 Docker containers.
 * **🔒 AES-256-GCM Encryption:** Credentials and service account keys are encrypted before storage.
-* **📦 Modular Sub-exports:** Formats and clients are cleanly separated (`@gatriever/templates/telegram`, `@gatriever/templates/json`).
+* **🛰 Multi-Router DDNS Sync:** Automatically tracks dynamic public IPs across multiple routers and updates GA4 `INTERNAL_TRAFFIC` rules to keep internal traffic out of analytics.
+* **📐 Type-Safe Valibot Schemas:** Lightweight schema validation across all DTOs and configs with `@gatriever/schemas`.
+* **📦 Single-Responsibility Packages:** Each module is independently testable and publishable to npm.
 * **🎯 Single Source of Truth:** Centralized versioning declared in root `package.json` and verified against `CHANGELOG.md`.
 
 ---
@@ -46,13 +55,16 @@ gatriever/
 pnpm install
 ```
 
-### Build & Typecheck
+### Build & Typecheck & Test
 ```bash
-# Build all apps and packages
-pnpm run build
+# Run unit tests across all packages
+pnpm run test
 
 # Typecheck the entire monorepo
 pnpm run typecheck
+
+# Build all apps and packages into standalone bundles
+pnpm run build
 ```
 
 ### Development
