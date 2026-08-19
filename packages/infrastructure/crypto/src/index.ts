@@ -4,16 +4,13 @@ const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12; // Standard for GCM
 const AUTH_TAG_LENGTH = 16;
 
-/**
- * Derives a consistent 32-byte key from a secret string using SHA-256.
- */
 function deriveKey(secret: string): Buffer {
   return crypto.createHash("sha256").update(secret).digest();
 }
 
 /**
  * Encrypts a string using AES-256-GCM.
- * Output format: base64(iv:authTag:encryptedData)
+ * Output format: base64(iv + authTag + encryptedData)
  */
 export function encryptCredentials(plainText: string, secretKey: string): string {
   const key = deriveKey(secretKey);
@@ -29,7 +26,6 @@ export function encryptCredentials(plainText: string, secretKey: string): string
   ]);
 
   const tag = cipher.getAuthTag();
-
   const combined = Buffer.concat([iv, tag, encrypted]);
   return combined.toString("base64");
 }
