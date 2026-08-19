@@ -7,7 +7,10 @@ if (typeof process.loadEnvFile === "function") {
   }
 }
 
-import { createStorageAdapter } from "@gatriever/database";
+import {
+  FileStorageAdapter,
+  MemoryStorageAdapter,
+} from "@gatriever/storage";
 import { createBot } from "./bot.js";
 
 async function main() {
@@ -23,7 +26,11 @@ async function main() {
     process.exit(1);
   }
 
-  const storage = createStorageAdapter(storageType, storagePath);
+  const storage =
+    storageType === "memory"
+      ? new MemoryStorageAdapter()
+      : new FileStorageAdapter(storagePath);
+
   const bot = createBot(token, storage, secretKey);
 
   console.log("🚀 Starting @gatriever/telegram-bot...");

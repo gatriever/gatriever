@@ -1,74 +1,95 @@
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { GA4Client } from "@gatriever/ga-client";
-import { formatJsonReport, formatJsonError } from "@gatriever/templates/json";
+import { createServer } from "node:http";
+import { MicroRouter } from "@gatriever/http";
+import { FileStorageAdapter, MemoryStorageAdapter } from "@gatriever/storage";
+import { GA4DataClient } from "@gatriever/analytics";
+import { DdnsSyncCoordinator } from "@gatriever/ddns";
+import { formatJsonReport } from "@gatriever/templates";
 
 export interface ApiServerOptions {
   port?: number;
   credentialsJson?: Record<string, unknown> | string;
+  storageType?: string;
+  storagePath?: string;
+  secretKey?: string;
 }
 
 export function createApiServer(options: ApiServerOptions = {}) {
   const port = options.port || Number.parseInt(process.env.PORT || "3000", 10);
   const defaultCredentials = options.credentialsJson || process.env.GA_CREDENTIALS_JSON;
+  const storageType = options.storageType || process.env.STORAGE_ADAPTER || "file";
+  const storagePath = options.storagePath || process.env.STORAGE_FILE_PATH || "./data/storage.json";
+  const secretKey = options.secretKey || process.env.ENCRYPTION_SECRET || "default_gatriever_super_secret_32_bytes";
 
-  const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
-    const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
+  const storage =
+    storageType === "memory"
+      ? new MemoryStorageAdapter()
+      : new FileStorageAdapter(storagePath);
 
-    // Set JSON response header
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
+  const ddnsCoordinator = new DdnsSyncCoordinator(storage, secretKey);
+  const router = new MicroRouter();
 
-    // Route: GET /health
-    if (req.method === "GET" && url.pathname === "/health") {
-      res.writeHead(200);
-      res.end(JSON.stringify({ status: "healthy", timestamp: new Date().toISOString() }));
-      return;
-    }
-
-    // Route: GET /api/report
-    if (req.method === "GET" && url.pathname === "/api/report") {
-      const propertyId = url.searchParams.get("propertyId") || process.env.GA_PROPERTY_ID;
-      const propertyName = url.searchParams.get("name") || "Default Property";
-      const days = Number.parseInt(url.searchParams.get("days") || "7", 10);
-      const limit = Number.parseInt(url.searchParams.get("limit") || "5", 10);
-
-      if (!propertyId) {
-        res.writeHead(400);
-        res.end(JSON.stringify(formatJsonError("Missing required parameter: propertyId")));
-        return;
-      }
-
-      if (!defaultCredentials) {
-        res.writeHead(500);
-        res.end(JSON.stringify(formatJsonError("Server credentials not configured.")));
-        return;
-      }
-
-      try {
-        const client = new GA4Client(defaultCredentials, propertyId);
-        const report = await client.getFullReport(propertyName, propertyId, days, limit);
-        res.writeHead(200);
-        res.end(JSON.stringify(formatJsonReport(report)));
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        res.writeHead(500);
-        res.end(JSON.stringify(formatJsonError(msg)));
-      }
-      return;
-    }
-
-    // 404 Fallback
-    res.writeHead(404);
-    res.end(JSON.stringify(formatJsonError(`Route ${req.method} ${url.pathname} not found`)));
+  // Route: GET /health
+  router.get("/health", (_req, res) => {
+    res.json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+    });
   });
+
+  // Route: GET /api/v1/report
+  router.get("/api/v1/report", async (req, res) => {
+    const propertyId = req.query?.get("propertyId") || process.env.GA_PROPERTY_ID;
+    const propertyName = req.query?.get("name") || "Default Property";
+    const days = Number.parseInt(req.query?.get("days") || "7", 10);
+    const limit = Number.parseInt(req.query?.get("limit") || "5", 10);
+
+    if (!propertyId) {
+      res.json({ error: "Missing required query parameter: propertyId" }, 400);
+      return;
+    }
+
+    if (!defaultCredentials) {
+      res.json({ error: "Server credentials not configured." }, 500);
+      return;
+    }
+
+    try {
+      const client = new GA4DataClient(defaultCredentials, propertyId);
+      const report = await client.getFullReport(propertyName, propertyId, days, limit);
+      res.json(JSON.parse(formatJsonReport(report)));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      res.json({ error: msg }, 500);
+    }
+  });
+
+  // Route: POST /api/v1/jobs/ddns-sync
+  router.post("/api/v1/jobs/ddns-sync", async (_req, res) => {
+    try {
+      const results = await ddnsCoordinator.syncAllDueUsers(new Date());
+      res.json({
+        success: true,
+        processedUsers: results.length,
+        results,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      res.json({ error: msg }, 500);
+    }
+  });
+
+  const server = createServer((req, res) => router.handle(req, res));
 
   return {
     server,
+    router,
     listen: () =>
       new Promise<void>((resolve) => {
         server.listen(port, () => {
           console.log(`🚀 @gatriever/api-server listening on port ${port}`);
-          resolve();
         });
+        resolve();
       }),
   };
 }

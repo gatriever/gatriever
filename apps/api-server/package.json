@@ -9,8 +9,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@gatriever/database": "workspace:*",
-    "@gatriever/ga-client": "workspace:*",
+    "@gatriever/analytics": "workspace:*",
+    "@gatriever/ddns": "workspace:*",
+    "@gatriever/http": "workspace:*",
+    "@gatriever/storage": "workspace:*",
     "@gatriever/templates": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
   }
 }

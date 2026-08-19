@@ -1,8 +1,12 @@
 import { Bot } from "grammy";
-import type { IStorageAdapter } from "@gatriever/database";
-import { decryptCredentials, encryptCredentials } from "@gatriever/database";
-import { GA4Client } from "@gatriever/ga-client";
-import { formatTelegramReport } from "@gatriever/templates/telegram";
+import type { IStorageAdapter } from "@gatriever/storage";
+import { decryptCredentials, encryptCredentials } from "@gatriever/crypto";
+import { GA4DataClient } from "@gatriever/analytics";
+import {
+  formatTelegramReport,
+  formatDdnsStatusMessage,
+} from "@gatriever/templates";
+import { validateRouterId } from "@gatriever/schemas";
 
 export function createBot(
   token: string,
@@ -26,17 +30,20 @@ export function createBot(
     }
 
     const text = [
-      "🐕 *gatriever* — Твій особистий GA4 Analytics Retriever!",
+      "🐕 *gatriever* — Твій особистий GA4 Analytics & DDNS Retriever!",
       "",
-      "Приноситиме зведення Google Analytics прямо у Telegram.",
+      "Приноситиме зведення Google Analytics та синхронізуватиме IP внутрішнього трафіку.",
       "",
-      "📌 *Доступні команди:*",
+      "📌 *Аналітика GA4:*",
       "📊 `/stat` — Швидка статистика",
       "➕ `/add_site <property_id> <назва>` — Додати ресурс GA4",
       "📋 `/list_sites` — Перелік підключених сайтів",
       "🔑 Надішли JSON-файл ключа сервісного акаунту для автовидалення та шифрування",
-      "🔔 `/schedule_on` / 🔕 `/schedule_off` — Сповіщення",
-      "⏰ `/set_time <HH:MM>` — Час щоденного дайджесту",
+      "",
+      "🌐 *DDNS та Внутрішній Трафік:*",
+      "🛰 `/set_ddns <hostname> <id_роутера> [назва]` — Додати DDNS-роутер",
+      "📡 `/ddns_status` — Переглянути статус роутерів та IP",
+      "🛑 `/ddns_off` — Вимкнути DDNS моніторинг",
     ].join("\n");
 
     await ctx.reply(text, { parse_mode: "Markdown" });
@@ -121,7 +128,7 @@ export function createBot(
       );
 
       for (const site of user.sites) {
-        const gaClient = new GA4Client(credentialsJson, site.propertyId);
+        const gaClient = new GA4DataClient(credentialsJson, site.propertyId);
         const report = await gaClient.getFullReport(site.name, site.propertyId, 7, 5);
         const messageText = formatTelegramReport(report);
 
@@ -130,6 +137,90 @@ export function createBot(
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       await ctx.reply(`❌ Помилка під час отримання аналітики: ${message}`);
+    }
+  });
+
+  // Command: /set_ddns <hostname> <id> [name]
+  bot.command("set_ddns", async (ctx) => {
+    const userId = String(ctx.from?.id);
+    const args = (ctx.match || "").trim().split(/\s+/);
+
+    if (args.length < 2 || !args[0] || !args[1]) {
+      await ctx.reply(
+        "❌ Невірний формат.\nВикористання: `/set_ddns <hostname> <id_роутера> [назва]`\nПриклад: `/set_ddns home.tenet.ua home Дім Tenet`",
+        { parse_mode: "Markdown" }
+      );
+      return;
+    }
+
+    const hostname = args[0];
+    const routerId = args[1].toLowerCase();
+    const routerName = args.slice(2).join(" ") || routerId;
+
+    if (!validateRouterId(routerId)) {
+      await ctx.reply(
+        "❌ Невірний формат ID роутера. Використовуйте тільки латинські літери, цифри, дефіс та підкреслення (наприклад: `home-tenet`).",
+        { parse_mode: "Markdown" }
+      );
+      return;
+    }
+
+    const user = (await storage.getUser(userId)) || {
+      userId,
+      sites: [],
+      schedule: { enabled: false, time: "09:00" },
+    };
+
+    const ddnsConfig = user.ddns || {
+      enabled: true,
+      cronExpression: "*/15 * * * *",
+      routers: [],
+    };
+
+    const existingIndex = ddnsConfig.routers.findIndex((r) => r.id === routerId);
+    const routerObj = {
+      id: routerId,
+      name: routerName,
+      hostname,
+    };
+
+    if (existingIndex >= 0) {
+      ddnsConfig.routers[existingIndex] = routerObj;
+    } else {
+      ddnsConfig.routers.push(routerObj);
+    }
+
+    ddnsConfig.enabled = true;
+    user.ddns = ddnsConfig;
+    await storage.saveUser(userId, user);
+
+    await ctx.reply(
+      `✅ Роутер *${routerName}* (\`${routerId}\`) з хостом \`${hostname}\` успішно підключено до моніторингу!`,
+      { parse_mode: "Markdown" }
+    );
+  });
+
+  // Command: /ddns_status
+  bot.command("ddns_status", async (ctx) => {
+    const userId = String(ctx.from?.id);
+    const user = await storage.getUser(userId);
+
+    const routers = user?.ddns?.routers || [];
+    const text = formatDdnsStatusMessage(routers);
+    await ctx.reply(text, { parse_mode: "Markdown" });
+  });
+
+  // Command: /ddns_off
+  bot.command("ddns_off", async (ctx) => {
+    const userId = String(ctx.from?.id);
+    const user = await storage.getUser(userId);
+
+    if (user?.ddns) {
+      user.ddns.enabled = false;
+      await storage.saveUser(userId, user);
+      await ctx.reply("🛑 DDNS моніторинг вимкнено.");
+    } else {
+      await ctx.reply("ℹ️ DDNS моніторинг не був налаштований.");
     }
   });
 
