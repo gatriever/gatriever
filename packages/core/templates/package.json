@@ -1,23 +1,22 @@
 {
   "name": "@gatriever/templates",
+  "version": "0.1.0",
+  "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./src/index.ts"
+      "default": "./dist/index.js"
     },
     "./telegram": {
       "types": "./dist/telegram.d.ts",
-      "import": "./dist/telegram.js",
-      "default": "./src/telegram.ts"
+      "default": "./dist/telegram.js"
     },
     "./json": {
       "types": "./dist/json.d.ts",
-      "import": "./dist/json.js",
-      "default": "./src/json.ts"
+      "default": "./dist/json.js"
     }
   },
   "scripts": {
@@ -25,6 +24,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@gatriever/ga-client": "workspace:*"
+    "@gatriever/analytics": "workspace:*",
+    "@gatriever/schemas": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3"
   }
 }

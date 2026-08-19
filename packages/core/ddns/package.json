@@ -1,0 +1,29 @@
+{
+  "name": "@gatriever/ddns",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@gatriever/analytics": "workspace:*",
+    "@gatriever/crypto": "workspace:*",
+    "@gatriever/schemas": "workspace:*",
+    "@gatriever/storage": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3"
+  }
+}

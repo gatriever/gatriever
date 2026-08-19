@@ -1,13 +1,14 @@
 {
-  "name": "@gatriever/ga-client",
+  "name": "@gatriever/schemas",
+  "version": "0.1.0",
+  "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./src/index.ts"
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -15,6 +16,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@google-analytics/data": "^4.0.0"
+    "valibot": "^1.0.0-rc.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3"
   }
 }

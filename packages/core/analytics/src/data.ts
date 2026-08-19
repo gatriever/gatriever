@@ -1,12 +1,29 @@
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import type {
-  GA4Credentials,
-  OverviewMetrics,
-  PageViewMetric,
-  SiteAnalyticsReport,
-} from "./types.js";
 
-export class GA4Client {
+export interface OverviewMetrics {
+  activeUsers: number;
+  sessions: number;
+  pageViews: number;
+  conversions: number;
+}
+
+export interface PageViewMetric {
+  path: string;
+  views: number;
+  users: number;
+}
+
+export interface SiteAnalyticsReport {
+  propertyName: string;
+  propertyId: string;
+  days: number;
+  overview: OverviewMetrics;
+  topPages: PageViewMetric[];
+}
+
+export type GA4Credentials = string | Record<string, unknown>;
+
+export class GA4DataClient {
   private client: BetaAnalyticsDataClient;
   private defaultPropertyId?: string;
 
