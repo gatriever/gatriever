@@ -1,10 +1,10 @@
-# 🐕 gatriever
+# gatriever
 
 > Fetching your Google Analytics 4 reports straight to Telegram and REST API, with automated multi-router DDNS internal traffic filtering. Open-source, private, and lightning fast.
 
 ---
 
-## 🏛️ Monorepo Architecture
+## Monorepo Architecture
 
 The project is structured as a modular monorepo powered by **pnpm workspaces**:
 
@@ -32,18 +32,18 @@ gatriever/
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-* **⚡ Ultra-fast Cold Starts & Zero `node_modules` in Prod:** Bundled via `tsup`/`esbuild` with inlined workspace dependencies (`noExternal`) for instant Serverless / Cloud Functions startup and minimal PM2 Docker containers.
-* **🔒 AES-256-GCM Encryption:** Credentials and service account keys are encrypted before storage.
-* **🛰 Multi-Router DDNS Sync:** Automatically tracks dynamic public IPs across multiple routers and updates GA4 `INTERNAL_TRAFFIC` rules to keep internal traffic out of analytics.
-* **📐 Type-Safe Valibot Schemas:** Lightweight schema validation across all DTOs and configs with `@gatriever/schemas`.
-* **📦 Single-Responsibility Packages:** Each module is independently testable and publishable to npm.
-* **🎯 Single Source of Truth:** Centralized versioning declared in root `package.json` and verified against `CHANGELOG.md`.
+* **Ultra-fast Cold Starts & Zero `node_modules` in Prod:** Bundled via `tsup`/`esbuild` with inlined workspace dependencies (`noExternal`) for instant Serverless / Cloud Functions startup and minimal PM2 Docker containers.
+* **AES-256-GCM Encryption:** Credentials and service account keys are encrypted before storage.
+* **Multi-Router DDNS Sync:** Automatically tracks dynamic public IPs across multiple routers and updates GA4 `INTERNAL_TRAFFIC` rules to keep internal traffic out of analytics.
+* **Type-Safe Valibot Schemas:** Lightweight schema validation across all DTOs and configs with `@gatriever/schemas`.
+* **Single-Responsibility Packages:** Each module is independently testable and publishable to npm.
+* **Single Source of Truth:** Centralized versioning declared in root `package.json` and verified against `CHANGELOG.md`.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 * **Node.js:** `>= 24`
@@ -55,7 +55,7 @@ gatriever/
 pnpm install
 ```
 
-### Build & Typecheck & Test
+### Build, Typecheck & Test
 ```bash
 # Run unit tests across all packages
 pnpm run test
@@ -78,7 +78,7 @@ pnpm run dev:api
 
 ---
 
-## 📄 Configuration
+## Configuration
 
 Copy `.env.example` to `.env` and fill in your variables:
 
@@ -95,6 +95,6 @@ cp .env.example .env
 
 ---
 
-## 📜 License
+## License
 
 [MIT License](LICENSE) © Podhound Team

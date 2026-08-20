@@ -1,4 +1,4 @@
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
+import { GoogleAuth, type GA4Credentials } from "./auth.js";
 
 export interface OverviewMetrics {
   activeUsers: number;
@@ -21,22 +21,22 @@ export interface SiteAnalyticsReport {
   topPages: PageViewMetric[];
 }
 
-export type GA4Credentials = string | Record<string, unknown>;
+export { GA4Credentials };
+
+interface RunReportResponse {
+  rows?: Array<{
+    dimensionValues?: Array<{ value?: string }>;
+    metricValues?: Array<{ value?: string }>;
+  }>;
+}
 
 export class GA4DataClient {
-  private client: BetaAnalyticsDataClient;
+  private auth: GoogleAuth;
   private defaultPropertyId?: string;
 
   constructor(credentials: GA4Credentials, defaultPropertyId?: string) {
+    this.auth = new GoogleAuth(credentials);
     this.defaultPropertyId = defaultPropertyId;
-    const parsedCredentials =
-      typeof credentials === "string"
-        ? (JSON.parse(credentials) as Record<string, unknown>)
-        : credentials;
-
-    this.client = new BetaAnalyticsDataClient({
-      credentials: parsedCredentials,
-    });
   }
 
   private resolvePropertyId(propertyId?: string): string {
@@ -44,13 +44,35 @@ export class GA4DataClient {
     if (!id) {
       throw new Error("No GA4 propertyId provided or configured.");
     }
-    return id.startsWith("properties/") ? id : `properties/${id}`;
+    return id.replace(/^properties\//, "");
+  }
+
+  private async request(propertyId: string, body: Record<string, unknown>): Promise<RunReportResponse> {
+    const token = await this.auth.getAccessToken([
+      "https://www.googleapis.com/auth/analytics.readonly",
+    ]);
+
+    const url = `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`GA4 Data API error (${response.status}): ${errorText}`);
+    }
+
+    return (await response.json()) as RunReportResponse;
   }
 
   async getOverview(days = 7, propertyId?: string): Promise<OverviewMetrics> {
-    const prop = this.resolvePropertyId(propertyId);
-    const [response] = await this.client.runReport({
-      property: prop,
+    const propId = this.resolvePropertyId(propertyId);
+    const response = await this.request(propId, {
       dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }],
       metrics: [
         { name: "activeUsers" },
@@ -83,9 +105,8 @@ export class GA4DataClient {
     limit = 5,
     propertyId?: string
   ): Promise<PageViewMetric[]> {
-    const prop = this.resolvePropertyId(propertyId);
-    const [response] = await this.client.runReport({
-      property: prop,
+    const propId = this.resolvePropertyId(propertyId);
+    const response = await this.request(propId, {
       dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }],
       dimensions: [{ name: "pagePath" }],
       metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],

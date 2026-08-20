@@ -1,5 +1,4 @@
-import { AnalyticsAdminServiceClient } from "@google-analytics/admin";
-import type { GA4Credentials } from "./data.js";
+import { GoogleAuth, type GA4Credentials } from "./auth.js";
 
 export interface SyncFilterResult {
   propertyId: string;
@@ -9,35 +8,54 @@ export interface SyncFilterResult {
   ipAddress: string;
 }
 
+export interface DataStream {
+  name: string;
+  type: string;
+  displayName?: string;
+  webStreamData?: Record<string, unknown>;
+}
+
 export class GA4AdminClient {
-  private client: AnalyticsAdminServiceClient;
+  private auth: GoogleAuth;
 
   constructor(credentials: GA4Credentials) {
-    const parsedCredentials =
-      typeof credentials === "string"
-        ? (JSON.parse(credentials) as Record<string, unknown>)
-        : credentials;
-
-    this.client = new AnalyticsAdminServiceClient({
-      credentials: parsedCredentials,
-    });
+    this.auth = new GoogleAuth(credentials);
   }
 
   generateFilterDisplayName(routerName: string, routerId: string): string {
     return `gatriever: ${routerName} (${routerId})`;
   }
 
-  private resolvePropertyParent(propertyId: string): string {
-    return propertyId.startsWith("properties/") ? propertyId : `properties/${propertyId}`;
+  private resolvePropertyId(propertyId: string): string {
+    return propertyId.replace(/^properties\//, "");
   }
 
   /**
-   * Lists data streams for a given property.
+   * Lists data streams for a given property using Google Analytics Admin REST API.
    */
-  async listDataStreams(propertyId: string) {
-    const parent = this.resolvePropertyParent(propertyId);
-    const [streams] = await this.client.listDataStreams({ parent });
-    return streams;
+  async listDataStreams(propertyId: string): Promise<DataStream[]> {
+    const propId = this.resolvePropertyId(propertyId);
+    const token = await this.auth.getAccessToken([
+      "https://www.googleapis.com/auth/analytics.readonly",
+      "https://www.googleapis.com/auth/analytics.edit",
+    ]);
+
+    const url = `https://analyticsadmin.googleapis.com/v1beta/properties/${propId}/dataStreams`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`GA4 Admin API error (${response.status}): ${errorText}`);
+    }
+
+    const data = (await response.json()) as { dataStreams?: DataStream[] };
+    return data.dataStreams || [];
   }
 
   /**
@@ -46,7 +64,7 @@ export class GA4AdminClient {
   async syncInternalTrafficFilter(
     propertyId: string,
     routerId: string,
-    routerName: string,
+    _routerName: string,
     ipAddress: string
   ): Promise<SyncFilterResult> {
     try {

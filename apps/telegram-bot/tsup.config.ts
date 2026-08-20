@@ -1,19 +1,16 @@
 import { defineConfig } from "tsup";
-import rootPkg from "../../package.json" with { type: "json" };
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: {
+    "telegram-bot.firebase": "src/adapters/firebase.ts",
+    "telegram-bot.node": "src/adapters/node.ts",
+  },
   format: ["esm"],
   target: "node24",
-  minify: true,
   clean: true,
   sourcemap: true,
-  noExternal: [/^@gatriever\//],
-  outDir: "dist",
-  define: {
-    "process.env.APP_VERSION": JSON.stringify(rootPkg.version),
-  },
+  noExternal: [/(.*)/],
   banner: {
-    js: `// @gatriever/telegram-bot v${rootPkg.version} standalone bundle`,
+    js: `import { createRequire } from 'module'; const require = createRequire(import.meta.url);`,
   },
 });
