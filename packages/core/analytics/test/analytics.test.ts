@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { GA4AdminClient } from "@core/analytics";
+import { GA4AdminClient } from "../src/index.js";
 
-describe("@gatriever/analytics: GA4AdminClient", () => {
+describe("@gatriever/core: GA4AdminClient", () => {
   it("should format filter name and display name correctly", () => {
     const client = new GA4AdminClient(
       JSON.stringify({ client_email: "test@example.com", private_key: "fake-key" })

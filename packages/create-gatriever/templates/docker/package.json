@@ -1,0 +1,39 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "gatriever prepare",
+    "start": "docker compose up -d",
+    "stop": "docker compose down"
+  },
+  "dependencies": {
+    "gatriever": "^0.1.0"
+  },
+  "gatriever": {
+    "target": "docker",
+    "storage": "stateless",
+    "features": {
+      "bot": {{FEATURE_BOT}},
+      "api": {{FEATURE_API}},
+      "ddns": {
+        "enabled": {{FEATURE_DDNS}},
+        "cron": "*/15 * * * *"
+      }
+    },
+    "sites": [
+      {
+        "name": "My Site",
+        "propertyId": "123456789"
+      }
+    ],
+    "routers": [
+      {
+        "id": "home-router",
+        "name": "Home",
+        "hostname": "home.example.com"
+      }
+    ]
+  }
+}

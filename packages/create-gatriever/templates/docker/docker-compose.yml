@@ -1,0 +1,12 @@
+services:
+  gatriever:
+    image: ghcr.io/gatriever/gatriever:latest
+    container_name: gatriever-runner
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./package.json:/app/package.json:ro
+      - ./data:/app/data
+    ports:
+      - "3000:3000"

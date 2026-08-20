@@ -1,0 +1,33 @@
+{
+  "name": "gatriever",
+  "version": "0.1.0",
+  "description": "Ultra-minimalist CLI assembler and multiplatform runner for Gatriever",
+  "type": "module",
+  "bin": {
+    "gatriever": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@gatriever/analytics": "workspace:*",
+    "@gatriever/bot": "workspace:*",
+    "@gatriever/crypto": "workspace:*",
+    "@gatriever/ddns": "workspace:*",
+    "@gatriever/http": "workspace:*",
+    "@gatriever/schemas": "workspace:*",
+    "@gatriever/storage": "workspace:*",
+    "@gatriever/templates": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3"
+  }
+}

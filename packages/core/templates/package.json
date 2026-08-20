@@ -1,7 +1,6 @@
 {
   "name": "@gatriever/templates",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -9,14 +8,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./telegram": {
-      "types": "./dist/telegram.d.ts",
-      "default": "./dist/telegram.js"
-    },
-    "./json": {
-      "types": "./dist/json.d.ts",
-      "default": "./dist/json.js"
     }
   },
   "scripts": {

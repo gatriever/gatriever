@@ -2,48 +2,51 @@ import type { RouterConfig } from "@gatriever/schemas";
 
 export interface IpDiffResult {
   router: RouterConfig;
-  hasChanged: boolean;
   oldIp?: string;
   newIp?: string;
+  hasChanged: boolean;
 }
 
 export class IpDiffEngine {
   /**
-   * Compares the newly resolved IP with the router's last known IP.
+   * Compare resolved IP with router's last known IP.
    */
   detectChange(router: RouterConfig, resolvedIp: string | null): IpDiffResult {
     if (!resolvedIp) {
       return {
         router,
-        hasChanged: false,
         oldIp: router.lastKnownIp,
+        hasChanged: false,
       };
     }
 
     const hasChanged = router.lastKnownIp !== resolvedIp;
+
     return {
       router,
-      hasChanged,
       oldIp: router.lastKnownIp,
       newIp: resolvedIp,
+      hasChanged,
     };
   }
 
   /**
-   * Filters and returns only routers whose IP has changed.
+   * Filter and return only the routers that have changed IPs.
    */
   filterChanged(
     routers: RouterConfig[],
     resolvedIps: Map<string, string | null>
   ): IpDiffResult[] {
     const diffs: IpDiffResult[] = [];
+
     for (const router of routers) {
-      const resolved = resolvedIps.get(router.id) ?? null;
-      const diff = this.detectChange(router, resolved);
+      const resolvedIp = resolvedIps.get(router.id) ?? null;
+      const diff = this.detectChange(router, resolvedIp);
       if (diff.hasChanged) {
         diffs.push(diff);
       }
     }
+
     return diffs;
   }
 }

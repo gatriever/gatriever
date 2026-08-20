@@ -6,9 +6,10 @@ import {
   DdnsConfigSchema,
   UserDataSchema,
   validateRouterId,
-} from "@core/schemas";
+  GatrieverConfigSchema,
+} from "../src/index.js";
 
-describe("@gatriever/schemas: Valibot Schemas", () => {
+describe("@gatriever/core: Valibot Schemas", () => {
   describe("RouterIdSchema", () => {
     it("should accept valid slug router IDs", () => {
       expect(v.safeParse(RouterIdSchema, "home-tenet").success).toBe(true);
@@ -81,6 +82,15 @@ describe("@gatriever/schemas: Valibot Schemas", () => {
         },
       });
       expect(result.success).toBe(true);
+    });
+  });
+
+  describe("GatrieverConfigSchema", () => {
+    it("should validate default configuration", () => {
+      const config = v.parse(GatrieverConfigSchema, {});
+      expect(config.target).toBe("firebase");
+      expect(config.storage).toBe("stateless");
+      expect(config.features?.bot).toBe(true);
     });
   });
 });

@@ -10,18 +10,20 @@ export default defineConfig({
     environment: "node",
     include: [
       "packages/**/test/**/*.test.ts",
-      "apps/**/test/**/*.test.ts",
+      "test/**/*.test.ts",
     ],
   },
   resolve: {
     alias: {
-      "@core/schemas": path.resolve(__dirname, "./packages/core/schemas/src"),
-      "@core/ddns": path.resolve(__dirname, "./packages/core/ddns/src"),
-      "@core/analytics": path.resolve(__dirname, "./packages/core/analytics/src"),
-      "@core/templates": path.resolve(__dirname, "./packages/core/templates/src"),
-      "@infra/storage": path.resolve(__dirname, "./packages/infrastructure/storage/src"),
-      "@infra/crypto": path.resolve(__dirname, "./packages/infrastructure/crypto/src"),
-      "@infra/http": path.resolve(__dirname, "./packages/infrastructure/http/src"),
+      "@gatriever/schemas": path.resolve(__dirname, "./packages/core/schemas/src"),
+      "@gatriever/analytics": path.resolve(__dirname, "./packages/core/analytics/src"),
+      "@gatriever/crypto": path.resolve(__dirname, "./packages/core/crypto/src"),
+      "@gatriever/http": path.resolve(__dirname, "./packages/core/http/src"),
+      "@gatriever/storage": path.resolve(__dirname, "./packages/core/storage/src"),
+      "@gatriever/templates": path.resolve(__dirname, "./packages/core/templates/src"),
+      "@gatriever/ddns": path.resolve(__dirname, "./packages/core/ddns/src"),
+      "@gatriever/bot": path.resolve(__dirname, "./packages/core/bot/src"),
+      "gatriever": path.resolve(__dirname, "./packages/gatriever/src"),
     },
   },
 });

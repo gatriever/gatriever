@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { DdnsResolverService, IpDiffEngine } from "@core/ddns";
-import type { RouterConfig } from "@core/schemas";
+import { DdnsResolverService, IpDiffEngine } from "../src/index.js";
+import type { RouterConfig } from "@gatriever/schemas";
 import dns from "node:dns/promises";
 
 describe("@gatriever/ddns: Resolver & Diff Engine", () => {

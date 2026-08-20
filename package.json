@@ -1,5 +1,5 @@
 {
-  "name": "gatriever-monorepo",
+  "name": "gatriever-workspace",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,8 +11,6 @@
     "build": "pnpm -r run build",
     "check:changelog": "node .github/scripts/check-changelog.mjs",
     "sync:versions": "node .github/scripts/sync-version.mjs",
-    "dev:bot": "pnpm --filter @gatriever/telegram-bot dev",
-    "dev:api": "pnpm --filter @gatriever/api-server dev",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "pnpm -r run typecheck"

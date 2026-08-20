@@ -4,71 +4,55 @@ import type { RouterConfig } from "@gatriever/schemas";
 /**
  * Format a GA4 analytics report as Telegram Markdown text.
  */
-export function formatTelegramReport(report: SiteAnalyticsReport): string {
-  const { propertyName, propertyId, days, overview, topPages } = report;
+export function formatTelegramReport(
+  report: SiteAnalyticsReport,
+  routers: RouterConfig[] = []
+): string {
+  const lines: string[] = [];
 
-  const lines = [
-    `📊 *Звіт GA4: ${propertyName}*`,
-    `🏷 ID: \`${propertyId}\` (останні ${days} днів)`,
-    "",
-    `👥 *Активні користувачі:* \`${overview.activeUsers}\``,
-    `🔄 *Сесії:* \`${overview.sessions}\``,
-    `👁 *Перегляди сторінок:* \`${overview.pageViews}\``,
-    `🎯 *Конверсії:* \`${overview.conversions}\``,
-    "",
-    "🔝 *Топ сторінок:*",
-  ];
+  lines.push(`📊 *Report for ${report.propertyName}*`);
+  lines.push(`_Last ${report.days} days_\n`);
 
-  if (topPages.length === 0) {
-    lines.push("_Немає даних за вибраний період_");
-  } else {
-    topPages.forEach((page: PageViewMetric, idx: number) => {
-      lines.push(
-        `${idx + 1}. \`${page.path}\` — ${page.views} переглядів (${page.users} юзерів)`
-      );
+  lines.push(`👥 *Active Users:* ${report.overview.activeUsers.toLocaleString()}`);
+  lines.push(`👀 *Page Views:* ${report.overview.pageViews.toLocaleString()}`);
+  lines.push(`🔄 *Sessions:* ${report.overview.sessions.toLocaleString()}`);
+  lines.push(`🎯 *Conversions:* ${report.overview.conversions.toLocaleString()}\n`);
+
+  if (report.topPages.length > 0) {
+    lines.push(`📄 *Top Pages:*`);
+    report.topPages.forEach((page: PageViewMetric, i: number) => {
+      lines.push(`${i + 1}. \`${page.path}\` — ${page.views.toLocaleString()} views (${page.users} users)`);
+    });
+    lines.push("");
+  }
+
+  if (routers.length > 0) {
+    lines.push(`🌐 *Active DDNS Routers:*`);
+    routers.forEach((r) => {
+      const ipText = r.lastKnownIp ? `\`${r.lastKnownIp}\`` : "_pending_";
+      lines.push(`• *${r.name}*: ${ipText}`);
     });
   }
 
   return lines.join("\n");
 }
 
-/**
- * Format DDNS IP change alert for Telegram.
- */
-export function formatDdnsIpChangedAlert(
-  router: RouterConfig,
-  oldIp: string | undefined,
-  newIp: string,
-  gaUpdatedSitesCount: number
-): string {
-  return [
-    `🌐 *Зміна IP-адреси мережі!*`,
-    `🖥 Роутер: *${router.name}* (\`${router.id}\`)`,
-    `📡 Хост: \`${router.hostname}\``,
-    "",
-    oldIp ? `🔴 Старий IP: \`${oldIp}\`` : `⚪️ Перше виявлення`,
-    `🟢 Новий IP: \`${newIp}\``,
-    "",
-    gaUpdatedSitesCount > 0
-      ? `✅ Фільтри внутрішнього трафіку оновлено для ${gaUpdatedSitesCount} сайтів у GA4.`
-      : `ℹ️ GA4-фільтри не оновлювались (немає підключених ключів або сайтів).`,
-  ].join("\n");
-}
-
-/**
- * Format DDNS status for Telegram.
- */
 export function formatDdnsStatusMessage(routers: RouterConfig[]): string {
   if (routers.length === 0) {
-    return "📋 *DDNS Моніторинг:* роутери ще не налаштовані.\nВикористайте `/set_ddns <hostname> <id> <назва>`";
+    return "🌐 *DDNS Status:* No routers configured.";
   }
 
-  const list = routers
-    .map(
-      (r: RouterConfig, i: number) =>
-        `${i + 1}. *${r.name}* (\`${r.id}\`)\n   🌐 \`${r.hostname}\` ➔ IP: \`${r.lastKnownIp || "не визначено"}\``
-    )
-    .join("\n\n");
+  const lines: string[] = ["🌐 *DDNS Routers Status:*", ""];
+  for (const r of routers) {
+    const ipText = r.lastKnownIp ? `\`${r.lastKnownIp}\`` : "⚠️ _unresolved_";
+    const checked = r.lastCheckedAt
+      ? new Date(r.lastCheckedAt).toLocaleTimeString()
+      : "never";
+    lines.push(`• *${r.name}* (\`${r.id}\`)`);
+    lines.push(`  Host: \`${r.hostname}\``);
+    lines.push(`  IP: ${ipText} _(checked: ${checked})_`);
+    lines.push("");
+  }
 
-  return `📋 *Підключені DDNS-роутери:*\n\n${list}`;
+  return lines.join("\n");
 }

@@ -1,0 +1,38 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "gatriever prepare",
+    "deploy": "gatriever prepare && firebase deploy --only functions"
+  },
+  "dependencies": {
+    "gatriever": "^0.1.0"
+  },
+  "gatriever": {
+    "target": "firebase",
+    "storage": "stateless",
+    "features": {
+      "bot": {{FEATURE_BOT}},
+      "api": {{FEATURE_API}},
+      "ddns": {
+        "enabled": {{FEATURE_DDNS}},
+        "cron": "*/15 * * * *"
+      }
+    },
+    "sites": [
+      {
+        "name": "My Site",
+        "propertyId": "123456789"
+      }
+    ],
+    "routers": [
+      {
+        "id": "home-router",
+        "name": "Home",
+        "hostname": "home.example.com"
+      }
+    ]
+  }
+}

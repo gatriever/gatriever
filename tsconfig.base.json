@@ -12,23 +12,6 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "isolatedModules": true,
-    "baseUrl": ".",
-    "paths": {
-      "@core/schemas": ["packages/core/schemas/src"],
-      "@core/schemas/*": ["packages/core/schemas/src/*"],
-      "@core/ddns": ["packages/core/ddns/src"],
-      "@core/ddns/*": ["packages/core/ddns/src/*"],
-      "@core/analytics": ["packages/core/analytics/src"],
-      "@core/analytics/*": ["packages/core/analytics/src/*"],
-      "@core/templates": ["packages/core/templates/src"],
-      "@core/templates/*": ["packages/core/templates/src/*"],
-      "@infra/storage": ["packages/infrastructure/storage/src"],
-      "@infra/storage/*": ["packages/infrastructure/storage/src/*"],
-      "@infra/crypto": ["packages/infrastructure/crypto/src"],
-      "@infra/crypto/*": ["packages/infrastructure/crypto/src/*"],
-      "@infra/http": ["packages/infrastructure/http/src"],
-      "@infra/http/*": ["packages/infrastructure/http/src/*"]
-    }
+    "isolatedModules": true
   }
 }
