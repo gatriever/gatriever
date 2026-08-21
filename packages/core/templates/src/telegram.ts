@@ -13,15 +13,15 @@ export function formatTelegramReport(
   lines.push(`📊 *Report for ${report.propertyName}*`);
   lines.push(`_Last ${report.days} days_\n`);
 
-  lines.push(`👥 *Active Users:* ${report.overview.activeUsers.toLocaleString()}`);
-  lines.push(`👀 *Page Views:* ${report.overview.pageViews.toLocaleString()}`);
-  lines.push(`🔄 *Sessions:* ${report.overview.sessions.toLocaleString()}`);
-  lines.push(`🎯 *Conversions:* ${report.overview.conversions.toLocaleString()}\n`);
+  lines.push(`👥 *Active Users:* ${report.overview.activeUsers.toLocaleString("en-US")}`);
+  lines.push(`👀 *Page Views:* ${report.overview.pageViews.toLocaleString("en-US")}`);
+  lines.push(`🔄 *Sessions:* ${report.overview.sessions.toLocaleString("en-US")}`);
+  lines.push(`🎯 *Conversions:* ${report.overview.conversions.toLocaleString("en-US")}\n`);
 
   if (report.topPages.length > 0) {
     lines.push(`📄 *Top Pages:*`);
     report.topPages.forEach((page: PageViewMetric, i: number) => {
-      lines.push(`${i + 1}. \`${page.path}\` — ${page.views.toLocaleString()} views (${page.users} users)`);
+      lines.push(`${i + 1}. \`${page.path}\` — ${page.views.toLocaleString("en-US")} views (${page.users.toLocaleString("en-US")} users)`);
     });
     lines.push("");
   }
@@ -46,7 +46,7 @@ export function formatDdnsStatusMessage(routers: RouterConfig[]): string {
   for (const r of routers) {
     const ipText = r.lastKnownIp ? `\`${r.lastKnownIp}\`` : "⚠️ _unresolved_";
     const checked = r.lastCheckedAt
-      ? new Date(r.lastCheckedAt).toLocaleTimeString()
+      ? new Date(r.lastCheckedAt).toLocaleTimeString("en-US")
       : "never";
     lines.push(`• *${r.name}* (\`${r.id}\`)`);
     lines.push(`  Host: \`${r.hostname}\``);
