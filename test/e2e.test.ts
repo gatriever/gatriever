@@ -6,7 +6,7 @@ import { scaffoldProject } from "../packages/create-gatriever/src/index.js";
 import { prepareDeployment } from "../packages/gatriever/src/assembler.js";
 import { encryptCredentials, decryptCredentials } from "@gatriever/crypto";
 import { formatTelegramReport, formatDdnsStatusMessage } from "@gatriever/templates";
-import { DdnsResolverService, IpDiffEngine } from "@gatriever/ddns";
+import { DdnsResolverService, IpDiffEngine } from "../packages/gatriever/src/ddns/index.js";
 import type { SiteAnalyticsReport } from "@gatriever/analytics";
 import type { RouterConfig } from "@gatriever/schemas";
 

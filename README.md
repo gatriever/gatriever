@@ -57,13 +57,11 @@ The project is structured as a nested modular monorepo powered by **pnpm workspa
 ```text
 gatriever/
 ├── packages/
-│   ├── gatriever/                   # Main runtime wrapper, CLI assembler & webhook helper
+│   ├── gatriever/                   # Main runtime wrapper, Telegram bot, DDNS coordinator & CLI
 │   ├── create-gatriever/            # Interactive wizard for `npm create gatriever`
 │   │
 │   └── core/                        # Standalone, publishable primitives (@gatriever/*)
 │       ├── analytics/               # Zero-dependency GA4 Data & Admin REST API (@gatriever/analytics)
-│       ├── ddns/                    # Multi-router DDNS coordinator & DNS resolver (@gatriever/ddns)
-│       ├── bot/                     # Telegram bot factory & commands (@gatriever/bot)
 │       ├── http/                    # Zero-dependency native MicroRouter (@gatriever/http)
 │       ├── crypto/                  # AES-256-GCM encryption helpers (@gatriever/crypto)
 │       ├── schemas/                 # Valibot schemas & DTOs (@gatriever/schemas)

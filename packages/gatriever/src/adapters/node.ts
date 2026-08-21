@@ -1,6 +1,6 @@
 import http from "node:http";
-import { createTelegramBot } from "@gatriever/bot";
-import { DdnsSyncCoordinator } from "@gatriever/ddns";
+import { createTelegramBot } from "../bot/index.js";
+import { DdnsSyncCoordinator } from "../ddns/index.js";
 import { MicroRouter } from "@gatriever/http";
 import { FileStorageAdapter, MemoryStorageAdapter } from "@gatriever/storage";
 import { GatrieverConfigSchema, type GatrieverConfig, v } from "@gatriever/schemas";

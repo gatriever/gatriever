@@ -3,8 +3,8 @@ import { onRequest } from "firebase-functions/v2/https";
 // @ts-ignore - Provided by Firebase Functions runtime environment
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { webhookCallback } from "grammy";
-import { createTelegramBot } from "@gatriever/bot";
-import { DdnsSyncCoordinator } from "@gatriever/ddns";
+import { createTelegramBot } from "../bot/index.js";
+import { DdnsSyncCoordinator } from "../ddns/index.js";
 import { MicroRouter } from "@gatriever/http";
 import { FileStorageAdapter, MemoryStorageAdapter } from "@gatriever/storage";
 import { GatrieverConfigSchema, type GatrieverConfig, v } from "@gatriever/schemas";

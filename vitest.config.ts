@@ -21,8 +21,6 @@ export default defineConfig({
       "@gatriever/http": path.resolve(__dirname, "./packages/core/http/src"),
       "@gatriever/storage": path.resolve(__dirname, "./packages/core/storage/src"),
       "@gatriever/templates": path.resolve(__dirname, "./packages/core/templates/src"),
-      "@gatriever/ddns": path.resolve(__dirname, "./packages/core/ddns/src"),
-      "@gatriever/bot": path.resolve(__dirname, "./packages/core/bot/src"),
       "gatriever": path.resolve(__dirname, "./packages/gatriever/src"),
     },
   },

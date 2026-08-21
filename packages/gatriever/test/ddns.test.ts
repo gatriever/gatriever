@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { DdnsResolverService, IpDiffEngine } from "../src/index.js";
+import { DdnsResolverService, IpDiffEngine } from "../src/ddns/index.js";
 import type { RouterConfig } from "@gatriever/schemas";
 import dns from "node:dns/promises";
 
-describe("@gatriever/ddns: Resolver & Diff Engine", () => {
+describe("Gatriever: DDNS Resolver & Diff Engine", () => {
   describe("DdnsResolverService", () => {
     it("should resolve hostname to IPv4 address", async () => {
       vi.spyOn(dns, "resolve4").mockResolvedValueOnce(["188.115.42.10"]);
